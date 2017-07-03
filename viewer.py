@@ -13,10 +13,3 @@ class MyViewer(Gtk.Window):
         header.set_show_close_button(True)
         header.props.title = "My Pictures Ismendoza"
         self.set_titlebar(header)
-
-
-
-
-#win = MyViewer()
-#win.connect("delete-event", Gtk.main_quit)
-#win.show_all()
