@@ -2,6 +2,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf, Gio
 import os
+from viewer import MyViewer
 myUser = os.environ.get( "USERNAME" )
 sdir = "c:\\users\\"+myUser+"\\pictures\\"
 
@@ -99,9 +100,6 @@ class MyWindow(Gtk.Window):
 
         dialog.destroy()
 
-    def on_eventbox_click(self,evenbox, event):
-        print("Hello!")
-
     def on_name_combo_changed(self, combo):
         tree_iter = combo.get_active_iter()
         if tree_iter != None:
@@ -128,6 +126,13 @@ class MyWindow(Gtk.Window):
         else:
             self.combo_store.append([entrada])
             j.display_images(self, entrada)
+
+    def on_eventbox_click(self,evenbox, event):
+        viewer = MyViewer()
+        titulo = Gtk.Label("NUEVA VENTANA")
+        viewer.add(titulo)
+        viewer.connect("destroy", Gtk.Widget.destroy)
+        viewer.show_all()
 
 j = MyWindow
 win = MyWindow()
