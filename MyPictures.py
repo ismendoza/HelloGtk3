@@ -1,8 +1,9 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GdkPixbuf, Gio
+from gi.repository import Gtk, GdkPixbuf, Gio, Pango
 import os
 from viewer import MyViewer
+
 myUser = os.environ.get( "USERNAME" )
 sdir = "c:\\users\\"+myUser+"\\pictures\\"
 
@@ -50,6 +51,8 @@ class MyWindow(Gtk.Window):
         self.sw.add(self.flowbox)
         self.source_combo.connect("changed", self.on_name_combo_changed)
 
+        self.imagesList = []
+
     def display_images(self, selectedDir):
         #Load Images
         n_children = len(self.flowbox)
@@ -66,10 +69,21 @@ class MyWindow(Gtk.Window):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(f, 100, 150, True)
                 image.set_from_pixbuf(pixbuf)
                 eventbox = Gtk.EventBox()
-                eventbox.connect("button_press_event", self.on_eventbox_click)
-                eventbox.add(image)
+                eventbox.connect("button_press_event", self.on_eventbox_click, selectedDir)
+                imageName = Gtk.Label(file)
+                imageName.set_selectable(True)
+                imageName.set_max_width_chars(15)
+                imageName.set_ellipsize(Pango.EllipsizeMode.END)
+                imageName.set_halign(Gtk.Align.CENTER)
+
+                vboxIm = Gtk.VBox()
+                vboxIm.pack_start(image, expand=False, fill=False, padding=0)
+                vboxIm.pack_start(imageName, expand=False, fill=False, padding=0)
+
+                eventbox.add(vboxIm)
                 self.flowbox.add(eventbox)
         self.flowbox.show_all()
+
 
     def on_press(self, entry, event, pos):
         dialog = Gtk.FileChooserDialog("Please choose a folder", self,
@@ -127,10 +141,20 @@ class MyWindow(Gtk.Window):
             self.combo_store.append([entrada])
             j.display_images(self, entrada)
 
-    def on_eventbox_click(self,evenbox, event):
+    def on_eventbox_click(self,eventbox, event, imageDir):
         viewer = MyViewer()
-        titulo = Gtk.Label("NUEVA VENTANA")
-        viewer.add(titulo)
+        sw3 = Gtk.ScrolledWindow()
+        viewer.add(sw3)
+
+        v1 = eventbox.get_child()
+        children_of_vboxIm = v1.get_children()
+        file_name_selected = children_of_vboxIm[1].get_text()
+
+        selectedImage = Gtk.Image()
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file(imageDir + "\\" + file_name_selected)
+        selectedImage.set_from_pixbuf(pixbuf)
+        sw3.add(selectedImage)
+
         viewer.connect("destroy", Gtk.Widget.destroy)
         viewer.show_all()
 
